@@ -51,6 +51,7 @@ def make_mask(cells):
         mask |= MASKS[cr][1]
     return mask
 
+
 # bools
 
 def is_innocent(state, *cells):
@@ -64,7 +65,13 @@ def is_criminal(state, *cells):
 
 # lists
 
+def above(cell):
+    c, r = cell
+    return [(c, r2) for r2 in range(r)]
 
+def below(cell):
+    c, r = cell
+    return [(c, r2) for r2 in range(r + 1, ROWS)]
 
 NBS = ((-1,  1), (0,  1), (1,  1),
        (-1,  0),          (1,  0),
@@ -90,13 +97,11 @@ def innocents_from(state, cells):
 def criminals_from(state, cells):
     return [cell for cell in cells if not is_innocent(state, cell)]
 
-def above(cell):
-    c, r = cell
-    return [(c, r2) for r2 in range(r)]
+def num_innocents(state, cells):
+    return len(innocents_from(state, cells))
 
-def below(cell):
-    c, r = cell
-    return [(c, r2) for r2 in range(r + 1, ROWS)]
+def num_criminals(state, cells):
+    return len(criminals_from(state, cells))
 
 
 # interface
@@ -126,12 +131,6 @@ def set_criminal(*cells):
     mask = make_mask(cells)
     add_clue(lambda s: ~s & mask == mask)
 crim = set_criminal
-
-def num_innocents(state, cells):
-    return len(innocents_from(state, cells))
-
-def num_criminals(state, cells):
-    return len(criminals_from(state, cells))
 
 def has_innocents(cells, n):
     add_clue(lambda s: num_innocents(s, cells) == n)
