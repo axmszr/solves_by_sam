@@ -31,18 +31,41 @@ DRCS = ((-1, -1), (-1, 0), (-1, 1),
         (0, -1), (0, 1),
         (1, -1), (1, 0), (1, 1))
 
-grid = GRID.split('\n')[1:-1]
-ROWS = len(grid)
-COLS = len(grid[0])
+class STRS:
+    BLANK = '-'
+    MINE = 'X'
+    SAFE = '?'
+
+class NUMS:
+    BLANK = -1
+    MINE = -2
+    SAFE = -3
+
+
+#####
+
+temp_grid = GRID.split('\n')[1:-1]
+ROWS = len(temp_grid)
+COLS = len(temp_grid[0])
 SIZE = ROWS*COLS
 MASKS = tuple(1 << rc for rc in range(SIZE))
 ALL_ONES = (1 << SIZE) - 1
 
-for row in grid:
-    if len(grid) != COLS:
+for row in temp_grid:
+    if len(temp_grid) != COLS:
         raise Exception("Row of different length.")
-grid = [grid[r][c] for r in range(ROWS) for c in range(COLS)]
-grid = [-1 if x == '-' else int(x) for x in grid]
+temp_grid = [temp_grid[r][c] for r in range(ROWS) for c in range(COLS)]
+grid = []
+for x in temp_grid:
+    match x:
+        case STRS.BLANK:
+            grid.append(NUMS.BLANK)
+        case STRS.MINE:
+            grid.append(NUMS.MINE)
+        case STRS.SAFE:
+            raise Exception("No safe tiles at initialisation.")
+        case _:
+            grid.append(int(x))
 
 #####
 
@@ -51,16 +74,18 @@ def print_grid(grid):
     for r in range(ROWS):
         row = [chr(ord('A')+r), '  ']
         for c in range(COLS):
+            s = ' '
             i = r * ROWS + c
             match grid[i]:
-                case -1:
-                    row.append(' -')
-                case -2:
-                    row.append(' X')
-                case -3:
-                    row.append(' ?')
+                case NUMS.BLANK:
+                    s += STRS.BLANK
+                case NUMS.MINE:
+                    s += STRS.MINE
+                case NUMS.SAFE:
+                    s += STRS.SAFE
                 case _:
-                    row.append(' ' + str(grid[i]))
+                    s += str(grid[i])
+            row.append(s)
         rows.append(row)
     print()
     for row in rows:
@@ -134,7 +159,7 @@ def merge(states):
 first_tiles = set()
 other_tiles = []
 for i in range(SIZE):
-    if grid[i] == -1:
+    if grid[i] == NUMS.BLANK:
         other_tiles.append(i)
     else:
         first_tiles.add(i)
@@ -155,7 +180,7 @@ print(f"Took {time.time()-start:.2f} s\n")
 print(f"Filtering grids...")
 start = time.time()
 for i in range(SIZE):
-    if grid[i] == -1:
+    if grid[i] in (NUMS.BLANK, NUMS.MINE):
         continue
     states = update(i, states)
 print(f"Took {time.time()-start:.2f} s\n")
@@ -164,12 +189,12 @@ print(f"Took {time.time()-start:.2f} s\n")
 print(f"Merging grids...")
 mines, safes = merge(states)
 for i in mines:
-    grid[i] = -2
+    grid[i] = NUMS.MINE
 
 new_tiles = []
 for i in safes:
     if i not in first_tiles:
-        grid[i] = -3
+        grid[i] = NUMS.SAFE
         first_tiles.add(i)
         new_tiles.append(i)
 
@@ -185,11 +210,11 @@ while new_tiles:
 
     mines, safes = merge(states)
     for i in mines:
-        grid[i] = -2
+        grid[i] = NUMS.MINE
     new_tiles = []
     for i in safes:
         if i not in first_tiles:
-            grid[i] = -3
+            grid[i] = NUMS.SAFE
             first_tiles.add(i)
             new_tiles.append(i)
 
