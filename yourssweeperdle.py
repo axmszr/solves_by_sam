@@ -86,10 +86,10 @@ def num_to_masks(i, num_mines):
     if num_mines > num_cells:
         raise Exception("Not enough cells ({num} > {len(nbs)}) around {i}.")
     masks = []
-    perms = combinations(range(num_cells), num_mines)
-    for perm in perms:
+    combs = combinations(range(num_cells), num_mines)
+    for comb in combs:
         mineness = [False for _ in range(num_cells)]
-        for j in perm:
+        for j in comb:
             mineness[j] = True
         mine_mask = 0
         safe_mask = MASKS[i]
@@ -113,12 +113,6 @@ def update(i, states):
                 break
     return new_states
 
-def mine_count(state):
-    return sum(bool(state ^ MASKS[i]) for i in range(SIZE))
-
-def check_mine_count(states):
-    return tuple(state for state in states if mine_count(state) == MINES)
-        
 def merge(states):
     mine_mask = 0
     safe_mask = ALL_ONES
@@ -151,9 +145,9 @@ num_grids //= factorial(MINES) * factorial(len(other_tiles)-MINES)
 print(f"Generating {len(other_tiles)}C{MINES} = {num_grids:,} grids...")
 states = []
 start = time.time()
-for perm in combinations(other_tiles, MINES):
+for comb in combinations(other_tiles, MINES):
     state = ALL_ONES
-    for i in perm:
+    for i in comb:
         state ^= MASKS[i]
     states.append(state)
 print(f"Took {time.time()-start:.2f} s\n")
