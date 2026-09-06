@@ -70,26 +70,24 @@ for x in temp_grid:
 #####
 
 def print_grid(grid):
-    rows = [[' ', '  '] + [' '+str(c+1) for c in range(COLS)], []]
+    rows = [[' ', ' '] + [str(c+1) for c in range(COLS)], []]
     for r in range(ROWS):
-        row = [chr(ord('A')+r), '  ']
+        row = [chr(ord('A')+r), ' ']
         for c in range(COLS):
-            s = ' '
             i = r * ROWS + c
             match grid[i]:
                 case NUMS.BLANK:
-                    s += STRS.BLANK
+                    row.append(STRS.BLANK)
                 case NUMS.MINE:
-                    s += STRS.MINE
+                    row.append(STRS.MINE)
                 case NUMS.SAFE:
-                    s += STRS.SAFE
+                    row.append(STRS.SAFE)
                 case _:
-                    s += str(grid[i])
-            row.append(s)
+                    row.append(str(grid[i]))
         rows.append(row)
     print()
     for row in rows:
-        print(''.join(row))
+        print(' '.join(row))
 
 def neighbours_of(i):
     r = i // ROWS
