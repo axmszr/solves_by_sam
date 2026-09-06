@@ -200,6 +200,18 @@ while new_tiles:
     print_grid(grid)
     for i in new_tiles:
         cell = chr(ord('A') + i//ROWS) + str(i%ROWS + 1)
+        
+        val = 0
+        for j in neighbours_of(i):
+            if grid[j] == NUMS.BLANK:
+                break
+            if grid[j] == NUMS.MINE:
+                val += 1
+        else:
+            print(f"\n{cell} is {val}. Safe to reveal.")
+            grid[i] = val
+            continue
+        
         x = input(f"\n{cell} is safe. Value: ")
         # pray user doesn't make a mistake
         grid[i] = int(x)
